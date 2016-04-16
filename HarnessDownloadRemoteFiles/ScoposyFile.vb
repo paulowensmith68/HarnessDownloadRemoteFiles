@@ -22,6 +22,9 @@ Public Class ScoposyFile
     ' Ftp variables
     Public ftp As New FTP("WebAppBookmakerFeed20160413071258\paulowensmith1968", "PS?pos68")
 
+    ' Stream integer
+    Public intNextStream As Integer = 0
+
     Public Sub DownloadFiles()
         '-----------------------------------------------------------------------*
         ' Sub Routine parameters                                                *
@@ -122,6 +125,38 @@ Public Class ScoposyFile
 
         Finally
 
+            myConnection.Close()
+
+        End Try
+
+    End Sub
+
+    Private Sub InsertLocalXml(filename As String)
+
+        'Insert id into local_xml (log table)
+        Dim myConnection As New MySqlConnection(connectionString)
+        Dim myCommand As New MySqlCommand("insert into local_xml (id, stream) values(@id, @stream)")
+        myCommand.CommandType = CommandType.Text
+        myCommand.Connection = myConnection
+
+        Dim strId As String = filename.Replace(".xml", "")
+        Dim id As Integer = Convert.ToInt32(strId)
+        myCommand.Parameters.Add(New MySqlParameter("id", id))
+        myCommand.Parameters.Add(New MySqlParameter("stream", intNextStream))
+        If intNextStream > 5 Then
+            intNextStream = 1
+        End If
+
+        Try
+
+            myConnection.Open()
+            myCommand.ExecuteNonQuery()
+
+        Catch
+
+        Finally
+
+            myCommand.Dispose()
             myConnection.Close()
 
         End Try
