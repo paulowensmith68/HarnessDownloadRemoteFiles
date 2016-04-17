@@ -20,7 +20,7 @@ Public Class ScoposyFile
     Dim fileNameList As New List(Of String)
 
     ' Ftp variables
-    Public ftp As New FTP("WebAppBookmakerFeed20160413071258\paulowensmith1968", "PS?pos68")
+    Public ftp As New FTP(My.Settings.RemoteServerUser, My.Settings.RemoteServerPassword)
 
     ' Stream integer
     Public intNextStream As Integer = 0

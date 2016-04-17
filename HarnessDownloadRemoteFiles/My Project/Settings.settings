@@ -6,7 +6,7 @@
       <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="ProcessLogPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\#myPrograms\DownloadSpocosyFilesAndStream\logs\</Value>
+      <Value Profile="(Default)">C:\#myPrograms\HarnessDownloadRemoteFiles\logs\</Value>
     </Setting>
     <Setting Name="ConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
