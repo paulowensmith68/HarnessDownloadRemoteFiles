@@ -59,7 +59,7 @@ Public Class ScoposyFile
                     fileNameList.Add(fullFilename)
 
                     ' Leave cursor when we hit limit
-                    If intCursorCount > My.Settings.MaxFilesToDownload Then
+                    If intCursorCount >= My.Settings.MaxFilesToDownload Then
                         Exit While
                     End If
 
@@ -83,6 +83,9 @@ Public Class ScoposyFile
 
             ' Delete the entry from saved_xml
             DeleteSavedXml(filename)
+
+            ' Insert entry of saved_streammed_xml
+            InsertLocalXml(filename)
 
         Next
 
@@ -135,17 +138,24 @@ Public Class ScoposyFile
 
         'Insert id into local_xml (log table)
         Dim myConnection As New MySqlConnection(connectionString)
-        Dim myCommand As New MySqlCommand("insert into local_xml (id, stream) values(@id, @stream)")
+        Dim myCommand As New MySqlCommand("INSERT INTO `oddsmatching`.`saved_streammed_xml` (`id`, `stream`) VALUES (@id, @stream)")
         myCommand.CommandType = CommandType.Text
         myCommand.Connection = myConnection
 
-        Dim strId As String = filename.Replace(".xml", "")
+        ' Set stream number
+        If intNextStream = 0 Then
+            intNextStream = 1
+        Else
+            intNextStream = intNextStream + 1
+            If intNextStream > My.Settings.NumberOfStreams Then
+                intNextStream = 1
+            End If
+        End If
+
+            Dim strId As String = filename.Replace(".xml", "")
         Dim id As Integer = Convert.ToInt32(strId)
         myCommand.Parameters.Add(New MySqlParameter("id", id))
         myCommand.Parameters.Add(New MySqlParameter("stream", intNextStream))
-        If intNextStream > 5 Then
-            intNextStream = 1
-        End If
 
         Try
 

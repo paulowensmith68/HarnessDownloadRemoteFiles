@@ -160,6 +160,18 @@ Namespace My
                 Me("LocalDownloadPath") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("5")>  _
+        Public Property NumberOfStreams() As Integer
+            Get
+                Return CType(Me("NumberOfStreams"),Integer)
+            End Get
+            Set
+                Me("NumberOfStreams") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
@@ -169,8 +181,8 @@ Namespace My
      Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
      Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute()>  _
     Friend Module MySettingsProperty
-
-        <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>
+        
+        <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
         Friend ReadOnly Property Settings() As Global.HarnessDownloadRemoteFiles.My.MySettings
             Get
                 Return Global.HarnessDownloadRemoteFiles.My.MySettings.Default

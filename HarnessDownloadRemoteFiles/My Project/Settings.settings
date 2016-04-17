@@ -33,5 +33,8 @@
     <Setting Name="LocalDownloadPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\#myFiles\Downloaded\</Value>
     </Setting>
+    <Setting Name="NumberOfStreams" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
