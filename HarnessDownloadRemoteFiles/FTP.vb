@@ -1,4 +1,6 @@
-﻿Public Class FTP
+﻿Imports System.IO
+
+Public Class FTP
     '----------------------------FTP-----------------------------
     Private _credentials As System.Net.NetworkCredential
     Sub New(ByVal _FTPUser As String, ByVal _FTPPass As String)
@@ -42,7 +44,13 @@
             responseStream.CopyTo(fs)
             responseStream.Close()
             _response.Close()
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Download file completed successfully for file: " + _FileName, EventLogEntryType.Information)
+
         Catch ex As Exception
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Download file failed for file: " + _FileName + " Msg: " + ex.Message, EventLogEntryType.Error)
+
         End Try
     End Sub
     Public Function GetDirectory(ByVal _ftpPath As String) As List(Of String)
@@ -63,7 +71,13 @@
             Next
             _reader.Close()
             _response.Close()
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Get Directory completed successfully: " + _ftpPath, EventLogEntryType.Information)
+
         Catch ex As Exception
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Get Directory failed for path: " + _ftpPath + " Msg: " + ex.Message, EventLogEntryType.Error)
+
         End Try
         Return ret
     End Function
@@ -80,7 +94,13 @@
             ret = _reader.ReadToEnd
             _reader.Close()
             _response.Close()
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Delete File completed successfully: " + _ftpPath, EventLogEntryType.Information)
+
         Catch ex As Exception
+
+            gobjEvent.WriteToEventLog("FTP Class : FTP Delete File failed for path: " + _ftpPath + " Msg: " + ex.Message, EventLogEntryType.Error)
+
         End Try
         Return ret
     End Function
@@ -88,4 +108,45 @@
     Private Sub setCredentials(ByVal _FTPUser As String, ByVal _FTPPass As String)
         _credentials = New System.Net.NetworkCredential(_FTPUser, _FTPPass)
     End Sub
+
+    Public Function NewDownload(ByVal _FileName As String, ByVal _ftpDownloadPath As String, Optional ByVal PermitOverwrite As Boolean = True) As Boolean
+
+        Dim ftp As System.Net.FtpWebRequest = System.Net.WebRequest.Create(_ftpDownloadPath)
+        ftp.KeepAlive = False
+        ftp.Method = System.Net.WebRequestMethods.Ftp.DownloadFile
+        ftp.Credentials = _credentials
+        'ftp.UseBinary = True
+
+        Dim targetFI As New FileInfo(_FileName)
+
+        'open request and get response stream
+        Using response As Net.FtpWebResponse = CType(ftp.GetResponse, Net.FtpWebResponse)
+            Using responseStream As Stream = response.GetResponseStream
+                'loop to read & write to file
+                Using fs As FileStream = targetFI.OpenWrite
+                    Try
+                        Dim buffer(2047) As Byte
+                        Dim read As Integer = 0
+                        Do
+                            read = responseStream.Read(buffer, 0, buffer.Length)
+                            fs.Write(buffer, 0, read)
+                        Loop Until read = 0
+                        responseStream.Close()
+                        fs.Flush()
+                        fs.Close()
+                    Catch ex As Exception
+                        'catch error and delete file only partially downloaded
+                        fs.Close()
+                        'delete target file as it's incomplete
+                        targetFI.Delete()
+                        'Throw
+                        gobjEvent.WriteToEventLog("FTP Class : FTP failed for file: " + _FileName, EventLogEntryType.Error)
+                    End Try
+                End Using
+                responseStream.Close()
+            End Using
+            response.Close()
+        End Using
+        Return True
+    End Function
 End Class

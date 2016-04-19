@@ -58,6 +58,7 @@ Public Class ScoposyFile
                     Dim fullFilename As New String(id.ToString + ".xml")
                     fileNameList.Add(fullFilename)
 
+
                     ' Leave cursor when we hit limit
                     If intCursorCount >= My.Settings.MaxFilesToDownload Then
                         Exit While
@@ -78,14 +79,20 @@ Public Class ScoposyFile
         ' Loop through the files, download, delete from saved_xml
         For Each filename In fileNameList
 
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Download remote files processing file: " + filename, EventLogEntryType.Information)
+
             ' Ftp download the file and remove from remote server
-            ftpFile(filename)
+            FtpFile(filename)
 
             ' Delete the entry from saved_xml
             DeleteSavedXml(filename)
 
             ' Insert entry of saved_streammed_xml
             InsertLocalXml(filename)
+
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Download remote file processing completed", EventLogEntryType.Information)
 
         Next
 
@@ -99,11 +106,13 @@ Public Class ScoposyFile
         Dim LFN As String = My.Settings.LocalDownloadPath + filename
 
         Try
+
             ' Download file then delete
-            ftp.DownloadFile(LFN, RFN)
+            ftp.NewDownload(LFN, RFN)
 
             ' Delete file
             ftp.DeleteFile(RFN)
+
 
         Catch ex As Exception
 
@@ -124,7 +133,9 @@ Public Class ScoposyFile
             myConnection.Open()
             myCommand.ExecuteNonQuery()
 
-        Catch
+        Catch ex As Exception
+
+            gobjEvent.WriteToEventLog("DownloadRemoteFiles : Delete of row saved_xml failed: " + ex.Message, EventLogEntryType.Error)
 
         Finally
 
@@ -152,7 +163,7 @@ Public Class ScoposyFile
             End If
         End If
 
-            Dim strId As String = filename.Replace(".xml", "")
+        Dim strId As String = filename.Replace(".xml", "")
         Dim id As Integer = Convert.ToInt32(strId)
         myCommand.Parameters.Add(New MySqlParameter("id", id))
         myCommand.Parameters.Add(New MySqlParameter("stream", intNextStream))
@@ -162,7 +173,13 @@ Public Class ScoposyFile
             myConnection.Open()
             myCommand.ExecuteNonQuery()
 
-        Catch
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Insert Local Xml successful for file: " + filename, EventLogEntryType.Information)
+
+        Catch ex As Exception
+
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Insert Local Xml failed for file: " + filename + " Msg: " + ex.Message, EventLogEntryType.Error)
 
         Finally
 

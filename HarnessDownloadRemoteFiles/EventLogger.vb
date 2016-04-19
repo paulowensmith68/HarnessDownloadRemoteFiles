@@ -46,7 +46,7 @@ Public Class EventLogger
             'objEventLog.WriteEntry(entry, eventType)
 
             ' Always write to text log file in application directory
-            strLogFile = My.Settings.ProcessLogPath & "BetFairFeedService_Log_File_" & Format(Now, "_yyyy_MM_dd") & ".txt"
+            strLogFile = My.Settings.ProcessLogPath & "DownloadRemoteFiles_Log_File_" & Format(Now, "_yyyy_MM_dd") & ".txt"
             FileOpen(intFileNumber, strLogFile, OpenMode.Append)
             Dim strDate As String = Format(Now, "yyyy-MM-dd")
             Dim strTimestamp As String = Format(Now, "HH.mm.ss.ffffff")
