@@ -190,4 +190,37 @@ Public Class ScoposyFile
 
     End Sub
 
+    Public Sub InsertRowSavedXml(number As Integer)
+
+        'Insert id into local_xml (log table)
+        Dim myConnection As New MySqlConnection(connectionString)
+        Dim myCommand As New MySqlCommand("INSERT INTO `oddsmatching`.`saved_xml` (`id`) VALUES (@id)")
+        myCommand.CommandType = CommandType.Text
+        myCommand.Connection = myConnection
+
+        Dim id As Integer = number
+        myCommand.Parameters.Add(New MySqlParameter("id", id))
+
+        Try
+
+            myConnection.Open()
+            myCommand.ExecuteNonQuery()
+
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Insert Saved Xml successful", EventLogEntryType.Information)
+
+        Catch ex As Exception
+
+            ' Log activity
+            gobjEvent.WriteToEventLog("ScoposyFile Class : Insert Saved Xml failed" + " Msg: " + ex.Message, EventLogEntryType.Error)
+
+        Finally
+
+            myCommand.Dispose()
+            myConnection.Close()
+
+        End Try
+
+    End Sub
+
 End Class
